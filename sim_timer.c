@@ -293,13 +293,18 @@ return sim_os_sleep_min_ms;
 #endif /* defined(MS_MIN_GRANULARITY) && (MS_MIN_GRANULARITY != 1) */
 
 #if defined(SIM_ASYNCH_IO)
+#ifndef CLOCK_MONOTONIC
+#define CLOCK_MONOTONIC CLOCK_REALTIME
+#endif
 uint32 sim_idle_ms_sleep (unsigned int msec)
 {
-struct timespec start_time, end_time, done_time, delta_time;
+struct timespec start_time, end_time;                   /* using CLOCK_REALTIME */
+struct timespec mon_start_time, done_time, delta_time;  /* using CLOCK_MONOTONIC */
 uint32 delta_ms;
 t_bool timedout = FALSE;
 
 clock_gettime(CLOCK_REALTIME, &start_time);
+clock_gettime(CLOCK_MONOTONIC, &mon_start_time);
 end_time = start_time;
 end_time.tv_sec += (msec/1000);
 end_time.tv_nsec += 1000000*(msec%1000);
@@ -315,11 +320,11 @@ else
     sim_asynch_check = 0;                 /* force check of asynch queue now */
 sim_idle_wait = FALSE;
 pthread_mutex_unlock (&sim_asynch_lock);
-clock_gettime(CLOCK_REALTIME, &done_time);
+clock_gettime(CLOCK_MONOTONIC, &done_time);
 if (!timedout) {
     AIO_UPDATE_QUEUE;
     }
-sim_timespec_diff (&delta_time, &done_time, &start_time);
+sim_timespec_diff (&delta_time, &done_time, &mon_start_time);
 delta_ms = (uint32)((delta_time.tv_sec * 1000) + ((delta_time.tv_nsec + 500000) / 1000000));
 return delta_ms;
 }

@@ -1,0 +1,14 @@
+--- pdp11_cpu.c
++++ pdp11_cpu.c
+@@ -2893,7 +3101,11 @@ if (BPT_SUMM_RD &&
+     (sim_brk_test (va & 0177777, BPT_RDVIR) ||
+      sim_brk_test (pa, BPT_RDPHY)))                     /* read breakpoint? */
+     ABORT (ABRT_BKPT);                                  /* stop simulation */
++#ifdef USE_REALCONS
++	RETURN_REALCONS_CPU_PDP11_MEMACCESS_VA_PA_READ(cpu_realcons, va, pa, PReadB (pa));
++#else
+     return PReadB (pa);
++#endif
+ }
+ 
+ /* Read word with breakpoint check: if a data breakpoint is encountered,

@@ -108,7 +108,7 @@ un-comment the following line in ```install.sh```:
 
 ###### client11 (simh)
 
-Relative to [simh](https://github.com/simh/simh), the ```makefile```
+Relative to [simh](https://github.com/open-simh/simh), the ```makefile```
 and sources have been updated with two additional environment variable options:
 - ```USE_REALCONS=1```: Include the ```REALCONS``` client support from Joerg Hoppe
 - ```USE_PIDP11=1```: Include ```REALCONS``` and an additional change for PiDP-11/70 support (see below).

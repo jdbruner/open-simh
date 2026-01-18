@@ -677,11 +677,18 @@ dn_function(UNIT *uptr)
                break;
 
         case PRI_EM2TI:            /* Replay to initial message. */
+               data1[0] = 5;
+               if (dn_queue(032, PRI_DN60, 1, data1) == 0)
+                   return;
+#ifdef notdef
+               // This was the previous code in open-simh,
+               // not sure why it is different.
                data1[0] = (6 << 8) | 5;
                data1[1] = (0 << 8) | 0xc0;
                data1[2] = (1 << 8) | 0;
                if (dn_queue(01, PRI_DN60, 3, data1) == 0)
                    return;
+#endif
                 break;
         case PRI_EMLBE:            /* Acknowledge line */
                /* Should never get these */

@@ -63,7 +63,7 @@ to allow the console to inject characters into the simh console input.
 
 Windows support is very brittle at this time. Nonetheless, if you want to try...
 
-simh itself has good support for building and running on Windows.
+simh itself has support for building and running on Windows.
 There is no supported version of Windows on the Raspberry Pi,
 so the PiDP panel simulators are not applicable.
 However, with some work it is possible to use simh with the Java panel servers.
@@ -74,18 +74,20 @@ on Linux and run it on Windows with an equivalent JDK.
 To build it on Windows, install JDK 19 or newer and also install Apache Ant;
 then cd to the ``BlinkenBone`` directory and run ``make.bat``.
 
-The ``Visual Studio Projects`` folder contains a project file to build
-a PDP11 with REALCONS,
-but this has only been used with Visual Studio 2022.
+The ``Visual Studio Projects`` folder contains a VS2008 project file
+to build a PDP11 with REALCONS.
+Due to SDK dependency issues this doesn't work well with more
+recent versions of Visual Studio
+(even after they convert the project file).
 It creates the executable ``BIN/pdp11_realcons.exe``
-If you need to rebuild it for an older IDE
-(particularly if you want to build for Windows XP using Visual Studio 2008),
-then you will probably also need to rebuild
+You will probably also need to rebuild
 ``BlinkenBone/3rdparty/oncrpc_win32``.
 Warning: there be dragons here...
 
-There is no support for building a REALCONS-enabled PDP11 simulator
-using mingw64.
+##### No REALCONS builds with mingw64, cmake
+
+There is currently no support for building a REALCONS-enabled PDP11 simulator
+using mingw64 or with cmake.
 
 ##### Installation
 

@@ -11,12 +11,12 @@ Please consult the individual README and LICENSE files in the tree.
 The BlinkenBone and PiDP11 sources have been reorganized into a submodule,
 with changes to open-simh itself in the open-simh source tree
 (including changes to ``scp.c`` and the addition of ``REALCONS``).
-To build with REALCONS support, build with ``USE_REALCONS=1``;
-to build for PIDP11 (on a Raspberry Pi only), build with ``USE_PIDP11=1``.
-The Java panel server and PiDP11 binaries can be built on Linux by running
-``make.sh`` in the ``BlinkenBone`` subdirectory.
-Unlike Joerge Hoppe's original distribution, this builds only for
-the current machine (not cross-compilation).
+There are additional build targets for ``pdp11_realcons``,
+``pdp8_realcons``, ``pdp10_realcons``, and ``pdp15_realcons``.
+The Java panel server and PiDP11 binaries can be built on Linux by
+running ``make.sh`` in the ``BlinkenBone`` subdirectory.
+Unlike Joerge Hoppe's original distribution,
+this builds only for the current machine (not cross-compilation).
 The PiDP11 binaries are only built on a Raspberry Pi.
 
 The PiDP panelserver has been rewritten to use libgpiod (rather than
@@ -44,8 +44,8 @@ git config set submodule.recurse true
 
 ##### Build/update PiDP11 on Raspberry Pi
 
-This has diverged from [Oscar Vermeulen's PiDP11 installation
-and runtime scripts](http://pidp.net/pidp11/pidp11.tar.gz).
+This has diverged from [Oscar Vermeulen's PiDP11 installation and runtime
+[scripts](http://pidp.net/pidp11/pidp11.tar.gz).
 It does not include the
 [PDP-11 disk images](http://pidp.net/pidp11/systems.tar.gz). 
 
@@ -68,8 +68,8 @@ There is no supported version of Windows on the Raspberry Pi,
 so the PiDP panel simulators are not applicable.
 However, with some work it is possible to use simh with the Java panel servers.
 
-Java is "write once, run anywhere", so you can
-build ``BlinkenBone/javapanelsim/panelsim_all.jar``
+Java is "write once, run anywhere",
+so you can build ``BlinkenBone/javapanelsim/panelsim_all.jar``
 on Linux and run it on Windows with an equivalent JDK.
 To build it on Windows, install JDK 19 or newer and also install Apache Ant;
 then cd to the ``BlinkenBone`` directory and run ``make.bat``.
@@ -127,22 +127,15 @@ ExecStart=/opt/pidp11/server11 -r
 
 ###### client11 (simh)
 
-Relative to [simh](https://github.com/open-simh/simh), the ```makefile```
-and sources have been updated with two additional environment variable options:
-- ```USE_REALCONS=1```: Include the ```REALCONS``` client support from Joerg Hoppe
-- ```USE_PIDP11=1```: Include ```REALCONS``` and an additional change for PiDP-11/70 support (see below).
+Relative to [simh](https://github.com/open-simh/simh),
+the ```makefile``` and sources have been
+updated with additional build targets for
+REALCONS-enabled variants of the PDP8, PDP10, PDP11, and PDP15.
 
-If these are not set, the ```makefile``` will build all of the
-simulators the same as the upstream.
+The ```makefile``` will also build all of the simulators
+the same as the upstream.
 On a Raspberry Pi, ```make.sh``` command in the ```BlinkenBone``` directory
-will build the PiDP11 variant of the pdp11 and rename it to ```client11```.
-
-The only difference for the PiDP-11/70 (```USE_PIDP11=1```)
-is the handling of a power switch event.
-The address select knob on the PiDP-11 generates this event,
-which indicates that the simulator should be restarted.
-For other ```REALCONS``` builds, this event causes simh to break
-to the command line with the ```quit``` command pre-populated.
+will build ``pdp11_realcons`` and rename it to ```client11```.
 
 ##### server11
 
@@ -154,16 +147,16 @@ It can be run as a non-root user that belongs to the ```gpio``` group.
 ##### getcsw
 
 This new utility replaces ```scansw```.
-It reads the switch register from the panel server via the Blinkenlight API
-(rather than directly from the PiDP-11 GPIOs.
+It reads the switch register from the panel server via the Blinkenlight
+API (rather than directly from the PiDP-11 GPIOs.
 There are some command-line options that control how the value is formatted.
 
 ##### systemd services
 
 There are two systemd services:
-- *pidp11panel.service* - runs the panel server (server11) under the
-  non-privileged account ```pidp11``` with group ```gpio``` and with
-  the ability to set a real-time thread priority.
+- *pidp11panel.service* - runs the panel server (server11) under
+  the non-privileged account ```pidp11``` with group ```gpio``` and
+  with the ability to set a real-time thread priority.
   Unlike Oscar's version, the panel server runs continuously
   (even when the client is restarted).
 - *pidp11.service* - runs ```/opt/pidp11/pidp11.sh``` with a new ```screen```
@@ -172,11 +165,11 @@ There are two systemd services:
 ##### /opt/pidp11/pidp11.sh
 
 This script is the main client loop.
-It reads the switch register (with ```getcsw```) and selects the system
-to simulate.
-Oscar's version creates a command script in ```/var/run``` to launch
-the simulation and also to control what happens when the address select knob
-is pressed.
+It reads the switch register (with ```getcsw```)
+and selects the system to simulate.
+Oscar's version creates a command script in
+```/var/run``` to launch the simulation and also to control what happens
+when the address select knob is pressed.
 This version does not use an intermediate file;
 instead, simh uses the ```boot.ini``` script in the selected system directory.
 When the address select knob is pressed, simh exits.

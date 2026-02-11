@@ -2147,10 +2147,10 @@ pthread_mutex_lock (&dev->writer_lock);
 while (dev->handle) {
   pthread_cond_wait (&dev->writer_cond, &dev->writer_lock);
   while (NULL != (request = dev->write_requests)) {
-    if (dev->handle == NULL)      /* Shutting down? */
-      break;
     /* Pull buffer off request list */
     dev->write_requests = request->next;
+    if (dev->handle == NULL)      /* Shutting down? */
+      break;
     pthread_mutex_unlock (&dev->writer_lock);
 
     if (dev->throttle_delay != ETH_THROT_DISABLED_DELAY) {

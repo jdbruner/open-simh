@@ -1435,7 +1435,7 @@ ifneq (,${SIM_VERSION_MODE})
 endif
 LDFLAGS := ${OS_LDFLAGS} ${NETWORK_LDFLAGS} ${LDFLAGS_O}
 
-# REALCONS support
+### REALCONS support
 BLINKENLIGHT_COMMON_DIR=BlinkenBone/common/
 BLINKENLIGHT_API_DIR=BlinkenBone/blinkenlight_api/
 REALCONS_DIR=REALCONS/
@@ -1455,9 +1455,11 @@ REALCONS_PDP11= \
 	    $(REALCONS_DIR)realcons_console_pdp11_70.c
 
 REALCONS_PDP10= \
-        $(REALCONS_DIR)realcons_ki10_control.c \
+        $(REALCONS_DIR)realcons_kx10_control.c \
+        $(REALCONS_DIR)realcons_console_kx10.c \
+        $(REALCONS_DIR)realcons_console_ka10.c \
         $(REALCONS_DIR)realcons_console_ki10.c \
-        $(REALCONS_DIR)realcons_ki10_operpanel.c \
+        $(REALCONS_DIR)realcons_kx10_operpanel.c \
         $(REALCONS_DIR)realcons_ki10_maintpanel.c
 
 REALCONS_PDP8= \
@@ -1474,6 +1476,9 @@ REALCONS_OPT=-DUSE_REALCONS \
 	-I$(BLINKENLIGHT_API_DIR) \
 	-I/usr/include/tirpc \
 	-ltirpc
+
+### PIPANEL support
+PIDP10_OPT = -DPIDP10=1 -lgpiolib
 
 #
 # Common Libraries
@@ -2285,15 +2290,22 @@ EXPERIMENTAL = alpha pdq3 sage
 
 REALCONS_TARGETS = pdp8_realcons pdp15_realcons pdp10_realcons pdp11_realcons
 
-ifeq (,$(or ${PANDA_LIGHTS},${PIDP10}))
-       REALCONS_TARGETS += pdp10-ka_realcons pdp10-ki_realcons \
-           pdp10-kl_realcons pdp10-ks_realcons
+PIPANEL_TARGETS =
+
+ifeq (,${PANDA_LIGHTS})
+# PDP10 REALCONS and PIPANEL are incompatible with PANDA_LIGHTS
+  REALCONS_TARGETS += pdp10-ka_realcons pdp10-ki_realcons \
+      pdp10-kl_realcons pdp10-ks_realcons
+  PIPANEL_TARGETS += pdp10-ka_pipanel pdp10-ki_pipanel \
+      pdp10-kl_pipanel pdp10-ks_pipanel  
 endif
 
 
 experimental : ${EXPERIMENTAL}
 
 realcons : ${REALCONS_TARGETS}
+
+pipanel : ${PIPANEL_TARGETS}
 
 clean :
 ifeq (${WIN32},)
@@ -3123,8 +3135,8 @@ ifneq (,$(call find_test,${PDP10D},ks10))
 	$@ $(call find_test,${PDP10D},ks10) ${TEST_ARG}
 endif
 
-ifeq (,$(or ${PANDA_LIGHTS},${PIDP10}))
-# REALCONS is incompatible with PANDA_LIGHTS and PIDP10
+ifeq (,${PANDA_LIGHTS})
+# PDP10 REALCONS and PIPANEL are incompatible with PANDA_LIGHTS
 pdp10-ka_realcons : ${BIN}pdp10-ka_realcons${EXE}
 
 ${BIN}pdp10-ka_realcons${EXE} : ${KA10} ${SIM} ${REALCONS} ${REALCONS_PDP10}
@@ -3157,6 +3169,42 @@ pdp10-ks_realcons : ${BIN}pdp10-ks${EXE}
 ${BIN}pdp10-ks_realcons${EXE} : ${KS10} ${SIM} ${REALCONS} ${REALCONS_PDP10}
 	${MKDIRBIN}
 	${CC} ${KS10} ${SIM} ${REALCONS} ${REALCONS_PDP10} ${KS10_OPT} ${REALCONS_OPT} ${CC_OUTSPEC} ${LDFLAGS}
+ifneq (,$(call find_test,${PDP10D},ks10))
+	$@ $(call find_test,${PDP10D},ks10) ${TEST_ARG}
+endif
+
+pdp10-ka_pipanel : ${BIN}pdp10-ka_pipanel${EXE}
+
+${BIN}pdp10-ka_pipanel${EXE} : ${KA10} ${KA10D}/ka10_pipanel.c ${SIM}
+	${MKDIRBIN}
+	${CC} ${KA10} ${KA10_DPY} ${KA10D}/ka10_pipanel.c ${SIM} ${KA10_OPT} ${PIDP10_OPT} ${CC_OUTSPEC} ${LDFLAGS} ${KA10_LDFLAGS}
+ifneq (,$(call find_test,${PDP10D},ka10))
+	$@ $(call find_test,${PDP10D},ka10) ${TEST_ARG}
+endif
+
+pdp10-ki_pipanel : ${BIN}pdp10-ki_pipanel${EXE}
+
+${BIN}pdp10-ki_pipanel${EXE} : ${KI10} ${KI10D}/ka10_pipanel.c ${SIM}
+	${MKDIRBIN}
+	${CC} ${KI10} ${KI10_DPY} ${KI10D}/ka10_pipanel.c ${SIM} ${KI10_OPT} ${PIDP10_OPT} ${CC_OUTSPEC} ${LDFLAGS} ${KI10_LDFLAGS}
+ifneq (,$(call find_test,${PDP10D},ki10))
+	$@ $(call find_test,${PDP10D},ki10) ${TEST_ARG}
+endif
+
+pdp10-kl_pipanel : ${BIN}pdp10-kl_pipanel${EXE}
+
+${BIN}pdp10-kl_pipanel${EXE} : ${KL10} ${KL10D}/ka10_pipanel.c ${SIM}
+	${MKDIRBIN}
+	${CC} ${KL10} ${KL10D}/ka10_pipanel.c ${SIM} ${KL10_OPT} ${PIDP10_OPT} ${CC_OUTSPEC} ${LDFLAGS}
+ifneq (,$(call find_test,${PDP10D},kl10))
+	$@ $(call find_test,${PDP10D},kl10) ${TEST_ARG}
+endif
+
+pdp10-ks_pipanel : ${BIN}pdp10-ks_pipanel${EXE}
+
+${BIN}pdp10-ks_pipanel${EXE} : ${KS10} ${KS10D}/ka10_pipanel.c ${SIM}
+	${MKDIRBIN}
+	${CC} ${KS10} ${KS10D}/ka10_pipanel.c ${SIM} ${KS10_OPT} ${PIDP10_OPT} ${CC_OUTSPEC} ${LDFLAGS}
 ifneq (,$(call find_test,${PDP10D},ks10))
 	$@ $(call find_test,${PDP10D},ks10) ${TEST_ARG}
 endif

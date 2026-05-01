@@ -3146,7 +3146,7 @@ ifneq (,$(call find_test,${PDP10D},ka10))
 	$@ $(call find_test,${PDP10D},ka10) ${TEST_ARG}
 endif
 
-pdp10-ki_realcons : ${BIN}pdp10-ki${EXE}
+pdp10-ki_realcons : ${BIN}pdp10-ki_realcons${EXE}
 
 ${BIN}pdp10-ki_realcons${EXE} : ${KI10} ${SIM} ${REALCONS} ${REALCONS_PDP10}
 	${MKDIRBIN}
@@ -3155,7 +3155,7 @@ ifneq (,$(call find_test,${PDP10D},ki10))
 	$@ $(call find_test,${PDP10D},ki10) ${TEST_ARG}
 endif
 
-pdp10-kl_realcons : ${BIN}pdp10-kl${EXE}
+pdp10-kl_realcons : ${BIN}pdp10-kl_realcons${EXE}
 
 ${BIN}pdp10-kl_realcons${EXE} : ${KL10} ${SIM} ${REALCONS} ${REALCONS_PDP10}
 	${MKDIRBIN}
@@ -3164,7 +3164,7 @@ ifneq (,$(call find_test,${PDP10D},kl10))
 	$@ $(call find_test,${PDP10D},kl10) ${TEST_ARG}
 endif
 
-pdp10-ks_realcons : ${BIN}pdp10-ks${EXE}
+pdp10-ks_realcons : ${BIN}pdp10-ks_realcons${EXE}
 
 ${BIN}pdp10-ks_realcons${EXE} : ${KS10} ${SIM} ${REALCONS} ${REALCONS_PDP10}
 	${MKDIRBIN}

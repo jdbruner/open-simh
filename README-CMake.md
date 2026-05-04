@@ -91,6 +91,8 @@ Before you begin building the simulators, you need the following:
 
       apt: `sudo apt install cmake cmake-data`
 
+      dnf: `sudo dnf install cmake`
+
       pacman: `sudo pacman install cmake`
 
   - macOS: Install `cmake` using your preferred external package management
@@ -277,6 +279,12 @@ binaries.
 
     ```bash
     $ sudo sh .travis/deps.sh linux
+    ```
+
+  - Linux dnf-based distributions (e.g., Fedora, Red Hat):
+
+    ```bash
+    $ sudo sh .travis/deps.sh redhat
     ```
 
   - macOS Homebrew:
@@ -830,6 +838,7 @@ following the table.
 | `BUILD_SHARED_DEPS`  | platform-specific  | Build dependencies as shared libraries/DLLs on Windows. Does nothing on Linux/macOS. Disabled by default on Windows to ensure that the simulators link against static libraries. |
 | `WITH_ASYNC`         | enabled            | Asynchronous I/O and threading support. |
 | `WITH_REGEX`         | enabled            | PCRE regular expression support. |
+| `PREFER_PCRE`        | disabled           | Prefer the original PCRE regular expression library over PCRE2. The default is PCRE2, which is more actively maintained. |
 | `WITH_NETWORK`       | enabled            | Simulator networking support. `WITH_PCAP`, `WITH_SLIRP`, `WITH_VDE` and `WITH_TAP` only have meaning if `WITH_NETWORK` is enabled. |
 | `WITH_PCAP`          | enabled            | libpcap (packet capture) support. |
 | `WITH_SLIRP`         | enabled            | SLIRP UDP network support. |

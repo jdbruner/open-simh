@@ -131,6 +131,9 @@ extern DEVICE tv_dev;
 extern DEVICE mb_dev;
 extern REG cpu_reg[];
 extern int32 saved_PC;
+#ifdef USE_PIPANEL
+extern DEVICE pipanel_dev;
+#endif
 
 /* SCP data structures and interface routines
 
@@ -225,6 +228,9 @@ DEVICE *sim_devices[] = {
     &rk_dev,
     &uca_dev,
     &ucb_dev,
+#endif
+#ifdef USE_PIPANEL
+    &pipanel_dev,
 #endif
     NULL
     };

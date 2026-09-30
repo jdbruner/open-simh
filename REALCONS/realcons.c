@@ -426,6 +426,7 @@ t_stat realcons_disconnect(realcons_t *_this)
 void realcons_service(realcons_t *_this, int highspeed)
 {
     int i;
+    t_uint64 oldcur;
     if (!_this->connected)
         return;
 
@@ -437,7 +438,13 @@ void realcons_service(realcons_t *_this, int highspeed)
     _this->service_highspeed_prescaler = REALCONS_SERVICE_HIGHSPEED_PRESCALE; // reload
 
     // sample current time. can be used in console panel subclasses->service()
-    _this->service_cur_time_msec = sim_os_msec(); // get current time in millisec
+    // sim_os_msec returns a 32-bit value, which wraps after 49.7 days
+    // so if we see its value has decreased, assume it has wrapped
+    oldcur = _this->service_cur_time_msec;
+    _this->service_cur_time_msec =
+        (_this->service_cur_time_msec & ~(t_uint64)UINT32_MAX) | (uint32)sim_os_msec();
+    if (_this->service_cur_time_msec < oldcur)
+        _this->service_cur_time_msec += ((t_uint64)1 << 32);
     // update general purpose timers.
     for (i = 0; i < REALCONS_TIMER_COUNT; i++)
         if (_this->timer_running_msec[i]
@@ -487,21 +494,9 @@ void realcons_service(realcons_t *_this, int highspeed)
         }
     }
 
-    // 2 options
-    // a) try to run service exactly at REALCONS_SERVICE_INTERVAL_MSEC
-    // b) run service with pauses of minimal REALCONS_SERVICE_INTERVAL_MSEC
-    // realcons->service_next_time_msec += REALCONS_SERVICE_INTERVAL_MSEC ; // do not run exact
-
-    // set next execution time, AFTER all work is done
-    _this->service_next_time_msec = sim_os_msec()
-        + (_this->debug ? REALCONS_SERVICE_INTERVAL_DEBUG_MSEC : _this->service_interval_msec)
-        /*No  random term to avoid visual interferences with panel LEDs and CPU loops.
-          Better solution is LED low pass in Blinkenlight API servers
-         */
-        //      + (rand() % 2) /* + 0..1 msecs*/
-        //          + (rand() % 10) - 5 /* +/- 5 msecs*/
-
-;
+    // set next execution time
+    _this->service_next_time_msec = _this->service_cur_time_msec
+        + (_this->debug ? REALCONS_SERVICE_INTERVAL_DEBUG_MSEC : _this->service_interval_msec);
 }
 
 /*
@@ -510,13 +505,12 @@ void realcons_service(realcons_t *_this, int highspeed)
  */
 void realcons_ms_sleep(realcons_t *_this, int ms)
 {
-    uint32 end_time_msec;
+    t_uint64 end_time_msec;
 
-    end_time_msec = sim_os_msec() + ms; // get current time in millisec
-    while (end_time_msec > sim_os_msec()) {
-        // busy waiting
+    realcons_service(_this, 0); // sets _this->service_cur_time_msec
+    end_time_msec = _this->service_cur_time_msec + ms;
+    while (_this->service_cur_time_msec < end_time_msec)
         realcons_service(_this, 0);
-    }
 }
 
 /*
